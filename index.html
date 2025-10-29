@@ -68,6 +68,36 @@
 
     .gallery-hover img { transition: transform 0.4s ease; }
     .gallery-hover:hover img { transform: scale(1.05); }
+
+    /* Smooth countdown UI (no blinking) */
+.timebox{
+  background: rgba(255,255,255,.18);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 14px;
+  padding: .65rem .75rem;
+  text-align: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,.10);
+}
+.timebox .value{
+  font-family: 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: clamp(22px, 4.5vw, 36px);
+  line-height: 1.1;
+  transform: translateY(0);
+  transition: transform .28s ease;
+  will-change: transform;
+}
+.timebox .label{
+  font-size: .7rem;
+  letter-spacing: .04em;
+  opacity: .85;
+}
+
+/* Subtle “tick” motion only when the number changes — no opacity change */
+.value.tick { transform: translateY(-8%); }
+
   </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -87,20 +117,26 @@
         <h1 class="font-tangerine font-bold text-6xl md:text-7xl drop-shadow">Nutnaree & Sacha</h1>
         <p class="font-courier text-lg md:text-xl mt-2">29 December 2025</p>
         <p class="font-courier text-lg md:text-xl">Rama9, Bangkok</p>
-        <div id="countdown" class="mt-4 flex flex-wrap justify-center gap-6 font-bold text-xl">
-          <div class="text-center">
-            <span id="days" class="inline-block flip-animate">--</span><br><small class="text-sm">Days</small>
-          </div>
-          <div class="text-center">
-            <span id="hours" class="inline-block flip-animate">--</span><br><small class="text-sm">Hours</small>
-          </div>
-          <div class="text-center">
-            <span id="minutes" class="inline-block flip-animate">--</span><br><small class="text-sm">Minutes</small>
-          </div>
-          <div class="text-center">
-            <span id="seconds" class="inline-block flip-animate">--</span><br><small class="text-sm">Seconds</small>
-          </div>
-        </div>
+        <!-- Countdown (smooth, non-blinking) -->
+<div id="countdown" class="mt-5 grid grid-cols-4 gap-3 w-full max-w-xl mx-auto">
+  <div class="timebox">
+    <div id="days" class="value">00</div>
+    <div class="label">Days</div>
+  </div>
+  <div class="timebox">
+    <div id="hours" class="value">00</div>
+    <div class="label">Hours</div>
+  </div>
+  <div class="timebox">
+    <div id="minutes" class="value">00</div>
+    <div class="label">Minutes</div>
+  </div>
+  <div class="timebox">
+    <div id="seconds" class="value">00</div>
+    <div class="label">Seconds</div>
+  </div>
+</div>
+
       </div>
     </section>
 
@@ -197,7 +233,7 @@
     const storage = getStorage(app);
 
     const files = {
-      video: "mainvdo.mp4",
+      video: "BeachVDO3.mp4",
       heroImages: ["BeachPhoto24.jpg", "BeachPhoto2.jpg", "BeachPhoto8.jpg", "BeachPhoto15.jpg"],
       gallery: ["Studio18.jpg", "Studio33.jpg", "Studio12.jpg", "Studio19.jpg", "Studio11.jpg", "Studio26.jpg"],
       bride: "Studio22.jpg",
@@ -208,15 +244,46 @@
 
     const fadeIn = (el) => el.classList.add("show");
 
-    async function setSrc(el, file) {
+// Enhanced setSrc – handles <video> separately
+async function setSrc(el, file) {
+  if (el.tagName === "VIDEO") {
+    return setVideo(el, file);
+  }
+  try {
+    const url = await getDownloadURL(ref(storage, file));
+    el.src = url;
+    el.addEventListener("load", () => fadeIn(el), { once: true });
+  } catch (e) {
+    console.error("Image load failed:", file, e);
+  }
+}
+
+// Specific handler for video elements
+async function setVideo(videoEl, file) {
+  try {
+    const url = await getDownloadURL(ref(storage, file));
+    videoEl.src = url;
+    videoEl.muted = true;
+    videoEl.playsInline = true;
+    videoEl.autoplay = true;
+
+    // Wait until the video is ready to play
+    videoEl.addEventListener("canplay", async () => {
+      fadeIn(videoEl);
       try {
-        const url = await getDownloadURL(ref(storage, file));
-        el.src = url;
-        el.addEventListener("load", () => fadeIn(el), { once: true });
-      } catch (e) {
-        console.error("Load failed:", file, e);
+        await videoEl.play();
+      } catch (err) {
+        console.warn("Autoplay blocked:", err);
+        const overlay = document.getElementById("videoPlayOverlay");
+        overlay?.classList.remove("opacity-0", "pointer-events-none");
       }
-    }
+    }, { once: true });
+
+  } catch (e) {
+    console.error("Video load failed:", file, e);
+  }
+}
+
 
     async function buildCarousel() {
       const scroller = document.getElementById("snapCarousel");
@@ -250,39 +317,72 @@
     }
 
     async function loadMedia() {
-      await Promise.all([
-        setSrc(document.getElementById("heroVideo"), files.video),
-        setSrc(document.getElementById("brideImg"), files.bride),
-        setSrc(document.getElementById("groomImg"), files.groom),
-        setSrc(document.getElementById("splitImg"), files.split),
-        setSrc(document.getElementById("logoImg"), files.logo),
-        buildCarousel(),
-        buildGallery()
-      ]);
-      document.getElementById("preloader").classList.add("hidden");
-    }
+  const heroVideo = document.getElementById("heroVideo");
 
-    const weddingDate = new Date("2025-12-27T17:00:00+07:00").getTime();
-    function updateCountdown() {
-      const now = new Date().getTime();
-      const dist = weddingDate - now;
-      if (dist < 0) {
-        document.getElementById("countdown").innerHTML = "<p>It's Wedding Time!</p>";
-        return;
-      }
-      const d = Math.floor(dist / (1000 * 60 * 60 * 24));
-      const h = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const m = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-      const s = Math.floor((dist % (1000 * 60)) / 1000);
-      ["days","hours","minutes","seconds"].forEach((id,i)=>{
-        const el=document.getElementById(id);
-        el.textContent=[d,h,m,s][i];
-        el.classList.remove("flip-animate");
-        void el.offsetWidth; el.classList.add("flip-animate");
-      });
-    }
-    updateCountdown();
-    setInterval(updateCountdown,1000);
+  // Start loading everything in parallel
+  await Promise.all([
+    setSrc(heroVideo, files.video),
+    setSrc(document.getElementById("brideImg"), files.bride),
+    setSrc(document.getElementById("groomImg"), files.groom),
+    setSrc(document.getElementById("splitImg"), files.split),
+    setSrc(document.getElementById("logoImg"), files.logo),
+    buildCarousel(),
+    buildGallery()
+  ]);
+
+  // Wait until video can actually play before hiding preloader
+  if (heroVideo.readyState >= 3) {
+    // readyState 3 = HAVE_FUTURE_DATA, video can start playing
+    document.getElementById("preloader").classList.add("hidden");
+  } else {
+    heroVideo.addEventListener(
+      "canplaythrough",
+      () => {
+        document.getElementById("preloader").classList.add("hidden");
+      },
+      { once: true }
+    );
+  }
+}
+
+
+    // ---- SMOOTH COUNTDOWN (no blink, clean motion) ----
+const weddingDate = new Date("2025-12-27T17:00:00+07:00").getTime();
+
+function setVal(id, newVal) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const next = String(newVal).padStart(2, '0');
+  if (el.textContent === next) return; // unchanged → skip
+  el.textContent = next;
+  el.classList.add('tick');
+  setTimeout(() => el.classList.remove('tick'), 280);
+}
+
+function updateCountdown() {
+  const now = Date.now();
+  const distance = weddingDate - now;
+
+  if (distance <= 0) {
+    const wrap = document.getElementById("countdown");
+    if (wrap) wrap.innerHTML = "<p class='font-courier text-xl'>It's Wedding Time!</p>";
+    return;
+  }
+
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  setVal("days", days);
+  setVal("hours", hours);
+  setVal("minutes", minutes);
+  setVal("seconds", seconds);
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
 
     loadMedia();
   </script>
