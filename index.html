@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nut and Sacha Wedding</title>
+  <title>Wedding Web (Tailwind + Firebase Storage + Preloader)</title>
 
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -181,11 +181,13 @@
       </div>
     </section>
 
-    <!-- Gallery -->
-    <section class="py-10 bg-[#fafafa]">
-      <h4 class="text-center mb-6 font-courier">More Memories</h4>
-      <div id="gallery" class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 gap-3"></div>
-    </section>
+<section class="py-10 bg-[#fafafa]">
+  <h4 class="text-center mb-6 font-courier">More Memories</h4>
+  <div id="gallery" class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+    <!-- images will be injected here -->
+  </div>
+</section>
+
 
     <!-- Split -->
     <section class="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
@@ -303,18 +305,28 @@ async function setVideo(videoEl, file) {
     }
 
     async function buildGallery() {
-      const gallery = document.getElementById("gallery");
-      gallery.innerHTML = "";
-      for (const name of files.gallery) {
-        const url = await getDownloadURL(ref(storage, name));
-        const div = document.createElement("div");
-        div.className = "gallery-hover overflow-hidden rounded-lg";
-        div.innerHTML = `<img src="${url}" alt="${name}" class="w-full h-[28vh] md:h-[35vh] object-cover fade" />`;
-        const img = div.querySelector("img");
-        img.addEventListener("load", () => fadeIn(img), { once: true });
-        gallery.appendChild(div);
-      }
-    }
+  const gallery = document.getElementById("gallery");
+  gallery.innerHTML = "";
+  for (const name of files.gallery) {
+    const url = await getDownloadURL(ref(storage, name));
+
+    // Container with centered image
+    const div = document.createElement("div");
+    div.className = "gallery-hover flex items-center justify-center bg-white rounded-lg overflow-hidden shadow-md aspect-[3/4]"; 
+    // aspect-[3/4] ensures portrait ratio slots
+
+    // Image fits within slot without cropping
+    div.innerHTML = `
+      <img src="${url}" alt="${name}" 
+           class="max-h-full max-w-full object-contain transition-transform duration-300 ease-in-out hover:scale-105 fade" />
+    `;
+
+    const img = div.querySelector("img");
+    img.addEventListener("load", () => fadeIn(img), { once: true });
+    gallery.appendChild(div);
+  }
+}
+
 
     async function loadMedia() {
   const heroVideo = document.getElementById("heroVideo");
