@@ -14,149 +14,140 @@
   <link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
+    /* ---------- Fonts & helpers ---------- */
     .font-tangerine { font-family: 'Tangerine', cursive; }
     .font-courier { font-family: 'Courier New', monospace; }
     .font-georgia { font-family: 'Georgia', serif; }
-
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    html { scroll-behavior: smooth; }
 
-    @keyframes fadeSlideUp {
-      0% { opacity: 0; transform: translate(-50%, -40%); }
-      100% { opacity: 1; transform: translate(-50%, -50%); }
-    }
-    .overlay-anim { animation: fadeSlideUp 1.5s ease-out; }
-
-    @keyframes flipIn {
-      0% { transform: rotateX(90deg); opacity: 0; }
-      100% { transform: rotateX(0); opacity: 1; }
-    }
-    .flip-animate { animation: flipIn 0.7s ease-in-out; }
-
-    .fade { opacity: 0; transition: opacity .6s ease; }
-    .fade.show { opacity: 1; }
-
-    /* Preloader */
+    /* ---------- Preloader ---------- */
     #preloader {
-      position: fixed;
-      inset: 0;
-      background: #fff;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.8s ease, visibility 0.8s ease;
+      position: fixed; inset: 0; background: #fff; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity .8s ease, visibility .8s ease;
     }
-    #preloader.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
+    #preloader.hidden { opacity: 0; visibility: hidden; }
     .loader {
-      border: 4px solid #ddd;
-      border-top: 4px solid #222;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
+      border: 4px solid #e5e7eb; border-top: 4px solid #111827; border-radius: 50%;
+      width: 56px; height: 56px; animation: spin 1s linear infinite;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---------- Motion tokens ---------- */
+    :root { --eio: cubic-bezier(.22,.61,.36,1); } /* gentle ease-out */
+
+    /* gentle reveals used elsewhere */
+    .reveal    { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--eio), transform .8s var(--eio); }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-soft    { opacity: 0; transition: opacity .9s var(--eio); }
+    .reveal-soft.in { opacity: 1; }
+    .reveal-zoom    { opacity: 0; transform: scale(.985); transition: opacity .9s var(--eio), transform .9s var(--eio); transform-origin: center; }
+    .reveal-zoom.in { opacity: 1; transform: scale(1); }
+    .d1 { transition-delay: .06s; } .d2 { transition-delay: .12s; } .d3 { transition-delay: .18s; }
+
+    /* Hero title intro */
+    @keyframes headingIntro {
+      0%   { opacity: 0; transform: translateY(10px) scale(.985); }
+      100% { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+    .heading-intro { animation: headingIntro 900ms var(--eio) both; }
+
+    /* Countdown (no blink) */
+    .timebox{
+      background: rgba(255,255,255,.16);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 14px;
+      padding: .6rem .75rem;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+    }
+    .timebox .value{
+      font-family: 'Courier New', monospace;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      font-size: clamp(20px, 4.2vw, 34px);
+      line-height: 1.1;
+      transition: transform .25s var(--eio);
+    }
+    .timebox .label{ font-size: .7rem; letter-spacing: .04em; opacity: .9; }
+    .value.tick { transform: translateY(-6%); }
+    #countdown {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+      max-width: 300px; margin: 1rem auto 0;
+    }
+    .timebox { aspect-ratio: 1 / 1.05; }
+
+    /* Section rhythm */
+    section { isolation: isolate; }
+    .section-pad { padding-top: clamp(2rem, 5vw, 4rem); padding-bottom: clamp(2rem, 5vw, 4rem); }
+
+    /* Buttons */
+    .btn { transition: transform .15s var(--eio), box-shadow .15s var(--eio), background-color .15s var(--eio), color .15s var(--eio); }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+
+    /* ---------- COUPLE: smooth fly-in (no blur/filter) ---------- */
+    .fly-card {
+      opacity: 0;
+      transform: translateX(0); /* set by variant classes below */
+      transition: opacity .9s var(--eio), transform .9s var(--eio);
+      will-change: transform, opacity;
+      text-align: center;
+    }
+    .fly-left   { transform: translateX(-28px); }
+    .fly-right  { transform: translateX( 28px); }
+    .fly-card.in { opacity: 1; transform: translateX(0); }
+    .fly-card:hover { transform: translateX(0) translateY(-3px); }
+
+    .portrait {
+      width: min(25vh, 220px);
+      height: min(25vh, 220px);
+      border-radius: 9999px;
+      object-fit: cover;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+      /* No filters, no blur */
     }
 
-    .gallery-hover img { transition: transform 0.4s ease; }
-    .gallery-hover:hover img { transform: scale(1.05); }
+    .couple-meta {
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .8s var(--eio) .12s, transform .8s var(--eio) .12s;
+    }
+    .couple-meta.in { opacity: 1; transform: translateY(0); }
 
-    /* Smooth countdown UI (no blinking) */
-.timebox{
-  background: rgba(255,255,255,.18);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255,255,255,.25);
-  border-radius: 14px;
-  padding: .65rem .75rem;
-  text-align: center;
-  box-shadow: 0 6px 20px rgba(0,0,0,.10);
-}
-.timebox .value{
-  font-family: 'Courier New', monospace;
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  font-size: clamp(22px, 4.5vw, 36px);
-  line-height: 1.1;
-  transform: translateY(0);
-  transition: transform .28s ease;
-  will-change: transform;
-}
-.timebox .label{
-  font-size: .7rem;
-  letter-spacing: .04em;
-  opacity: .85;
-}
+    /* ---- RSVP Button (new) ---- */
+    .rsvp-btn {
+      display: inline-block;
+      background: linear-gradient(90deg, #fbcfe8 0%, #f5d0fe 100%);
+      color: #374151;
+      font-family: 'Courier New', monospace;
+      font-weight: 700;
+      padding: 0.9rem 1.6rem;
+      border-radius: 9999px;
+      box-shadow: 0 8px 22px rgba(0,0,0,.12);
+      transition: transform .22s var(--eio), box-shadow .22s var(--eio), background .22s var(--eio);
+    }
+    .rsvp-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(0,0,0,.16);
+      background: linear-gradient(90deg, #f9a8d4 0%, #e9d5ff 100%);
+    }
 
-/* Subtle “tick” motion only when the number changes — no opacity change */
-.value.tick { transform: translateY(-8%); }
+    /* Motion accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+    }
 
-/* --- COUNTDOWN (Refined Minimal 4-Box Design) --- */
-#countdown {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-  max-width: 300px; /* tighter width for elegance */
-  margin: 1rem auto 0;
-}
-
-.timebox {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  aspect-ratio: 1 / 1.1; /* consistent height ratio */
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  text-align: center;
-  transition: transform 0.25s ease;
-}
-.timebox:hover { transform: translateY(-2px); }
-
-.timebox .value {
-  font-family: 'Courier New', monospace;
-  font-weight: 600;
-  font-size: clamp(14px, 4.5vw, 20px);
-  line-height: 1.1;
-  transform: translateY(0);
-  transition: transform 0.25s ease;
-}
-.timebox .value.tick { transform: translateY(-6%); }
-
-.timebox .label {
-  font-size: 0.6rem;
-  letter-spacing: 0.04em;
-  opacity: 0.9;
-  margin-top: 2px;
-}
-
-/* Mobile fine-tune */
-@media (max-width: 480px) {
-  #countdown {
-    max-width: 260px;
-    gap: 5px;
-  }
-  .timebox {
-    border-radius: 9px;
-  }
-  .timebox .value { font-size: 15px; }
-  .timebox .label { font-size: 0.55rem; }
-}
-
-
-
-
-
+    /* Mobile tweaks */
+    @media (max-width: 480px) {
+      #countdown { max-width: 260px; gap: 5px; }
+      .timebox { border-radius: 10px; }
+      .timebox .value { font-size: 16px; }
+      .timebox .label { font-size: 0.56rem; }
+    }
   </style>
 </head>
 <body class="bg-white text-gray-900">
@@ -167,118 +158,138 @@
     <p class="font-courier text-gray-700">Loading memories...</p>
   </div>
 
-  <div class="w-full">
-    <!-- Section 1: Hero -->
-    <section class="relative h-screen w-full">
-      <video id="heroVideo" autoplay muted loop playsinline class="absolute inset-0 h-full w-full object-cover fade"></video>
-      <div class="absolute inset-0 bg-black/30"></div>
-      <div class="overlay-anim absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white px-3 z-10">
-        <h1 class="font-tangerine font-bold text-6xl md:text-7xl drop-shadow">Nutnaree & Sacha</h1>
-        <p class="font-courier text-lg md:text-xl mt-2">29 December 2025</p>
-        <p class="font-courier text-lg md:text-xl">Rama9, Bangkok</p>
-        <!-- Countdown (smooth, non-blinking) -->
-<div id="countdown"
-     class="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full max-w-[320px] md:max-w-xl mx-auto">
-
-  <div class="timebox">
-    <div id="days" class="value">00</div>
-    <div class="label">Days</div>
-  </div>
-  <div class="timebox">
-    <div id="hours" class="value">00</div>
-    <div class="label">Hours</div>
-  </div>
-  <div class="timebox">
-    <div id="minutes" class="value">00</div>
-    <div class="label">Minutes</div>
-  </div>
-  <div class="timebox">
-    <div id="seconds" class="value">00</div>
-    <div class="label">Seconds</div>
-  </div>
-</div>
-
+  <!-- Sticky top nav -->
+  <header class="sticky top-0 z-[60] bg-white/85 backdrop-blur border-b border-gray-200">
+    <nav class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
+      <a href="#home" class="font-tangerine text-3xl">N & S</a>
+      <div class="flex gap-4 text-sm font-courier">
+        <a href="#home" class="hover:opacity-70">Home</a>
+        <a href="#couple" class="hover:opacity-70">Couple</a>
+        <a href="#gallery" class="hover:opacity-70">Gallery</a>
+        <a href="#map" class="hover:opacity-70">Map</a>
       </div>
-    </section>
+    </nav>
+  </header>
 
-    <!-- Section 2 -->
-    <section class="py-8 text-center">
-      <p class="font-courier text-base">THE HONOUR OF YOUR PRESENCE IS REQUESTED</p>
-      <p class="font-courier text-base">AT THE MARRIAGE CELEBRATION OF</p>
-    </section>
+  <main class="w-full">
+    <!-- HERO -->
+    <section id="home" class="relative h-[92vh] w-full">
+      <video id="heroVideo" autoplay muted loop playsinline class="absolute inset-0 h-full w-full object-cover"></video>
+      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/40"></div>
 
-    <!-- Section 3 -->
-    <section class="px-4 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div class="flex flex-col items-center">
-        <img id="brideImg" alt="Bride" class="rounded-full object-cover w-[25vh] h-[25vh] p-2 shadow fade" />
-        <p class="font-tangerine text-3xl mt-2">Bride</p>
-        <p class="font-georgia text-xl">Nutnaree Luksachob</p>
-      </div>
-      <div class="flex flex-col items-center">
-        <img id="groomImg" alt="Groom" class="rounded-full object-cover w-[25vh] h-[25vh] p-2 shadow fade" />
-        <p class="font-tangerine text-3xl mt-2">Groom</p>
-        <p class="font-georgia text-xl">Sacha XXXXX</p>
-      </div>
-    </section>
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white px-3 z-10">
+        <h1 class="font-tangerine font-bold text-6xl md:text-7xl drop-shadow heading-intro">Nutnaree & Sacha</h1>
+        <p class="font-courier text-lg md:text-xl mt-2 reveal-soft d1">29 December 2025</p>
+        <p class="font-courier text-lg md:text-xl reveal-soft d2">Rama9, Bangkok</p>
 
-    <!-- Section 4 -->
-    <section class="mt-8 px-4 text-center">
-      <img id="logoImg" alt="Logo" class="mx-auto w-[30vh] h-auto fade" />
-      <div class="mt-4">
-        <p class="font-courier text-base">LET'S CELEBRATE TOGETHER ON</p>
-        <p class="font-courier text-base">OUR SPECIAL DAY ON</p>
-        <p class="font-courier text-2xl font-semibold">29 December 2025</p>
-      </div>
-    </section>
-
-    <!-- Carousel -->
-    <section class="my-10">
-      <div class="relative">
-        <div id="snapCarousel" class="w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex gap-4 px-4"></div>
-        <div class="mt-4 flex justify-center gap-3">
-          <button id="prevBtn" class="px-4 py-2 rounded-full bg-gray-900 text-white/90 hover:text-white hover:bg-gray-800">Prev</button>
-          <button id="nextBtn" class="px-4 py-2 rounded-full bg-gray-900 text-white/90 hover:text-white hover:bg-gray-800">Next</button>
+        <div id="countdown" class="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full max-w-[320px] md:max-w-xl mx-auto reveal-zoom d3">
+          <div class="timebox"><div id="days" class="value">00</div><div class="label">Days</div></div>
+          <div class="timebox"><div id="hours" class="value">00</div><div class="label">Hours</div></div>
+          <div class="timebox"><div id="minutes" class="value">00</div><div class="label">Minutes</div></div>
+          <div class="timebox"><div id="seconds" class="value">00</div><div class="label">Seconds</div></div>
         </div>
       </div>
     </section>
 
-<section class="py-10 bg-[#fafafa]">
-  <h4 class="text-center mb-6 font-courier">More Memories</h4>
-  <div id="gallery" class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-    <!-- images will be injected here -->
-  </div>
-</section>
+    <!-- INTRO LINES -->
+    <section class="section-pad text-center">
+      <p class="font-courier text-base reveal">THE HONOUR OF YOUR PRESENCE IS REQUESTED</p>
+      <p class="font-courier text-base reveal d1">AT THE MARRIAGE CELEBRATION OF</p>
+    </section>
 
+    <!-- COUPLE (smooth fly-in, no blur/filter) -->
+    <section id="couple" class="px-4 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 section-pad">
+      <!-- Bride -->
+      <div class="flex flex-col items-center">
+        <div class="fly-card fly-left" data-reveal="fly-card">
+          <img id="brideImg" alt="Bride" class="portrait" />
+        </div>
+        <div class="couple-meta mt-3" data-reveal="meta">
+          <p class="font-tangerine text-3xl">Bride</p>
+          <p class="font-georgia text-xl">Nutnaree Luksachob</p>
+        </div>
+      </div>
+      <!-- Groom -->
+      <div class="flex flex-col items-center">
+        <div class="fly-card fly-right" data-reveal="fly-card">
+          <img id="groomImg" alt="Groom" class="portrait" />
+        </div>
+        <div class="couple-meta mt-3" data-reveal="meta">
+          <p class="font-tangerine text-3xl">Groom</p>
+          <p class="font-georgia text-xl">Sacha XXXXX</p>
+        </div>
+      </div>
+    </section>
 
-    <!-- Split -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 min-h-screen">
+    <!-- MONOGRAM / DATE -->
+    <section class="px-4 text-center section-pad">
+      <img id="logoImg" alt="Logo" class="mx-auto w-[30vh] h-auto" />
+      <div class="mt-4">
+        <p class="font-courier text-base reveal">LET'S CELEBRATE TOGETHER ON</p>
+        <p class="font-courier text-base reveal d1">OUR SPECIAL DAY ON</p>
+        <p class="font-courier text-2xl font-semibold reveal d2">29 December 2025</p>
+      </div>
+    </section>
+
+    <!-- CAROUSEL -->
+    <section class="my-6">
+      <div class="relative max-w-6xl mx-auto">
+        <div id="snapCarousel" class="w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex gap-4 px-4 reveal"></div>
+        <div class="mt-4 flex justify-center gap-3">
+          <button id="prevBtn" class="btn px-4 py-2 rounded-full bg-gray-900 text-white/90 hover:text-white hover:bg-gray-800">Prev</button>
+          <button id="nextBtn" class="btn px-4 py-2 rounded-full bg-gray-900 text-white/90 hover:text-white hover:bg-gray-800">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="py-10 bg-[#fafafa]">
+      <h4 class="text-center mb-6 font-courier reveal">More Memories</h4>
+      <div id="galleryGrid" class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+        <!-- images injected -->
+      </div>
+    </section>
+
+    <!-- SPLIT MESSAGE + PHOTO -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 min-h-[70vh] section-pad">
       <div class="flex items-center justify-center text-center p-6">
-        <div>
-          <p class="font-courier text-2xl md:text-3xl leading-relaxed">
+        <div class="max-w-2xl">
+          <p class="font-courier text-2xl md:text-3xl leading-relaxed reveal">
             “เพื่อให้เราสามารถวางแผนในการดูแลท่าน ซึ่งเป็นแขกคนสำคัญได้อย่างเต็มที่
             ขอรบกวนทุกท่านทำแบบตอบรับการเข้าร่วมงานให้เราด้วยนะคะ/ครับ”
           </p>
-          <p class="font-courier text-2xl md:text-3xl mt-6">“HOPE TO SEE YOU AT OUR WEDDING”</p>
+          <p class="font-courier text-2xl md:text-3xl mt-6 reveal d2">“HOPE TO SEE YOU AT OUR WEDDING”</p>
         </div>
       </div>
-      <div><img id="splitImg" alt="Split" class="w-full h-full object-cover fade" /></div>
+      <div class="relative">
+        <img id="splitImg" alt="Split" class="w-full h-full object-cover" />
+        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-white"></div>
+      </div>
     </section>
 
-    <!-- Map -->
-    <section class="mt-10 mb-12 px-4">
-      <h4 class="text-center mb-4 font-courier">Wedding Location</h4>
-      <div class="max-w-5xl mx-auto">
-        <div class="w-full [aspect-ratio:16/9]">
+    <!-- ===== RSVP (new, before Map) ===== -->
+    <section id="rsvp" class="section-pad text-center">
+      <a href="https://google.com" target="_blank" rel="noopener noreferrer"
+         class="rsvp-btn reveal" aria-label="Open RSVP form in new tab">
+        RSVP NOW
+      </a>
+    </section>
+
+    <!-- MAP -->
+    <section id="map" class="section-pad">
+      <h4 class="text-center mb-4 font-courier reveal">Wedding Location</h4>
+      <div class="max-w-5xl mx-auto px-4 reveal-zoom d1">
+        <div class="relative rounded-xl overflow-hidden bg-white shadow-xl ring-1 ring-black/5">
           <iframe
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3875.850136597468!2d100.49281291536477!3d13.75633039035286!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e2992e2df7f5c3%3A0xa1e4c8e7b98a898!2sGrand%20Palace!5e0!3m2!1sen!2sth!4v1685349642793!5m2!1sen!2sth"
-            class="w-full h-full rounded-lg shadow" style="border:0;" allowfullscreen loading="lazy">
-          </iframe>
+            class="block w-full [aspect-ratio:16/9]" style="border:0;" allowfullscreen loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
       </div>
     </section>
-  </div>
+  </main>
 
-  <!-- Firebase + Logic -->
+  <!-- ========================= Firebase + Logic ========================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
@@ -305,48 +316,27 @@
       logo: "logo.png"
     };
 
-    const fadeIn = (el) => el.classList.add("show");
+    // Helpers
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// Enhanced setSrc – handles <video> separately
-async function setSrc(el, file) {
-  if (el.tagName === "VIDEO") {
-    return setVideo(el, file);
-  }
-  try {
-    const url = await getDownloadURL(ref(storage, file));
-    el.src = url;
-    el.addEventListener("load", () => fadeIn(el), { once: true });
-  } catch (e) {
-    console.error("Image load failed:", file, e);
-  }
-}
-
-// Specific handler for video elements
-async function setVideo(videoEl, file) {
-  try {
-    const url = await getDownloadURL(ref(storage, file));
-    videoEl.src = url;
-    videoEl.muted = true;
-    videoEl.playsInline = true;
-    videoEl.autoplay = true;
-
-    // Wait until the video is ready to play
-    videoEl.addEventListener("canplay", async () => {
-      fadeIn(videoEl);
+    async function setSrc(el, file) {
+      if (el.tagName === "VIDEO") return setVideo(el, file);
       try {
-        await videoEl.play();
-      } catch (err) {
-        console.warn("Autoplay blocked:", err);
-        const overlay = document.getElementById("videoPlayOverlay");
-        overlay?.classList.remove("opacity-0", "pointer-events-none");
-      }
-    }, { once: true });
-
-  } catch (e) {
-    console.error("Video load failed:", file, e);
-  }
-}
-
+        const url = await getDownloadURL(ref(storage, file));
+        el.src = url;
+        el.loading = "lazy";
+        el.decoding = "async";
+      } catch (e) { console.error("Image load failed:", file, e); }
+    }
+    async function setVideo(videoEl, file) {
+      try {
+        const url = await getDownloadURL(ref(storage, file));
+        videoEl.src = url; videoEl.muted = true; videoEl.playsInline = true; videoEl.autoplay = true;
+        videoEl.addEventListener("canplay", async () => {
+          try { await videoEl.play(); } catch (err) { console.warn("Autoplay blocked:", err); }
+        }, { once: true });
+      } catch (e) { console.error("Video load failed:", file, e); }
+    }
 
     async function buildCarousel() {
       const scroller = document.getElementById("snapCarousel");
@@ -354,110 +344,137 @@ async function setVideo(videoEl, file) {
       for (const name of files.heroImages) {
         const url = await getDownloadURL(ref(storage, name));
         const img = document.createElement("img");
-        img.src = url;
-        img.alt = name;
-        img.className = "snap-center shrink-0 w-full md:w-[80%] lg:w-[70%] h-[45vh] md:h-[65vh] object-cover rounded-xl shadow fade";
-        img.addEventListener("load", () => fadeIn(img), { once: true });
+        img.src = url; img.alt = name;
+        img.className = "snap-center shrink-0 w-full md:w-[80%] lg:w-[70%] h-[45vh] md:h-[65vh] object-cover rounded-xl shadow";
         scroller.appendChild(img);
       }
       const step = () => scroller.clientWidth * 0.8;
       document.getElementById('prevBtn')?.addEventListener('click', () => scroller.scrollBy({ left: -step(), behavior: 'smooth' }));
       document.getElementById('nextBtn')?.addEventListener('click', () => scroller.scrollBy({ left: step(), behavior: 'smooth' }));
+
+      // gentle snap assist
+      let t;
+      scroller.addEventListener('scroll', () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+          const children = Array.from(scroller.children);
+          const x = scroller.scrollLeft + scroller.clientWidth / 2;
+          let closest = null; let closestDist = Infinity;
+          children.forEach(ch => {
+            const rect = ch.getBoundingClientRect();
+            const center = rect.left + rect.width / 2 + scroller.scrollLeft;
+            const d = Math.abs(center - x);
+            if (d < closestDist) { closest = ch; closestDist = d; }
+          });
+          closest?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }, 120);
+      }, { passive: true });
     }
 
     async function buildGallery() {
-  const gallery = document.getElementById("gallery");
-  gallery.innerHTML = "";
-  for (const name of files.gallery) {
-    const url = await getDownloadURL(ref(storage, name));
+      const grid = document.getElementById("galleryGrid");
+      grid.innerHTML = "";
+      for (const [i, name] of files.gallery.entries()) {
+        const url = await getDownloadURL(ref(storage, name));
+        const card = document.createElement("div");
+        card.className = "flex items-center justify-center bg-white rounded-lg overflow-hidden shadow-md aspect-[3/4] reveal-zoom";
+        card.style.transitionDelay = (0.05 * (i % 6)) + "s";
 
-    // Container with centered image
-    const div = document.createElement("div");
-    div.className = "gallery-hover flex items-center justify-center bg-white rounded-lg overflow-hidden shadow-md aspect-[3/4]"; 
-    // aspect-[3/4] ensures portrait ratio slots
+        const img = document.createElement("img");
+        img.src = url; img.alt = name;
+        img.loading = "lazy"; img.decoding = "async";
+        img.className = "max-h-full max-w-full object-contain";
+        img.addEventListener("load", () => card.classList.add("in"), { once: true });
 
-    // Image fits within slot without cropping
-    div.innerHTML = `
-      <img src="${url}" alt="${name}" 
-           class="max-h-full max-w-full object-contain transition-transform duration-300 ease-in-out hover:scale-105 fade" />
-    `;
-
-    const img = div.querySelector("img");
-    img.addEventListener("load", () => fadeIn(img), { once: true });
-    gallery.appendChild(div);
-  }
-}
-
+        card.appendChild(img);
+        grid.appendChild(card);
+      }
+    }
 
     async function loadMedia() {
-  const heroVideo = document.getElementById("heroVideo");
+      const heroVideo = document.getElementById("heroVideo");
+      await Promise.all([
+        setSrc(heroVideo, files.video),
+        setSrc(document.getElementById("brideImg"), files.bride),
+        setSrc(document.getElementById("groomImg"), files.groom),
+        setSrc(document.getElementById("splitImg"), files.split),
+        setSrc(document.getElementById("logoImg"), files.logo),
+        buildCarousel(),
+        buildGallery()
+      ]);
 
-  // Start loading everything in parallel
-  await Promise.all([
-    setSrc(heroVideo, files.video),
-    setSrc(document.getElementById("brideImg"), files.bride),
-    setSrc(document.getElementById("groomImg"), files.groom),
-    setSrc(document.getElementById("splitImg"), files.split),
-    setSrc(document.getElementById("logoImg"), files.logo),
-    buildCarousel(),
-    buildGallery()
-  ]);
+      // Hide preloader when hero video can play or after a short fallback
+      const pre = document.getElementById("preloader");
+      if (heroVideo.readyState >= 3) {
+        pre.classList.add("hidden");
+      } else {
+        const done = () => pre.classList.add("hidden");
+        heroVideo.addEventListener("canplaythrough", done, { once: true });
+        setTimeout(done, 2000);
+      }
+    }
 
-  // Wait until video can actually play before hiding preloader
-  if (heroVideo.readyState >= 3) {
-    // readyState 3 = HAVE_FUTURE_DATA, video can start playing
-    document.getElementById("preloader").classList.add("hidden");
-  } else {
-    heroVideo.addEventListener(
-      "canplaythrough",
-      () => {
-        document.getElementById("preloader").classList.add("hidden");
-      },
-      { once: true }
-    );
-  }
-}
+    // Countdown
+    const weddingDate = new Date("2025-12-29T17:00:00+07:00").getTime();
+    function setVal(id, newVal) {
+      const el = document.getElementById(id); if (!el) return;
+      const next = String(newVal).padStart(2, '0');
+      if (el.textContent === next) return;
+      el.textContent = next; el.classList.add('tick');
+      setTimeout(() => el.classList.remove('tick'), 240);
+    }
+    function updateCountdown() {
+      const now = Date.now();
+      const distance = weddingDate - now;
+      if (distance <= 0) {
+        const wrap = document.getElementById("countdown");
+        if (wrap) wrap.innerHTML = "<p class='font-courier text-xl'>It's Wedding Time!</p>";
+        return;
+      }
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      setVal("days", days); setVal("hours", hours); setVal("minutes", minutes); setVal("seconds", seconds);
+    }
+    updateCountdown(); setInterval(updateCountdown, 1000);
 
+    /* ---------- Generic gentle reveals ---------- */
+    function setupReveal() {
+      const els = document.querySelectorAll('.reveal, .reveal-soft, .reveal-zoom');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            io.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+      els.forEach(el => io.observe(el));
+    }
 
-    // ---- SMOOTH COUNTDOWN (no blink, clean motion) ----
-const weddingDate = new Date("2025-12-29T17:00:00+07:00").getTime();
+    /* ---------- Couple fly-in ---------- */
+    (function setupCoupleFlyIn(){
+      const cards = document.querySelectorAll('[data-reveal="fly-card"]');
+      if (!cards.length) return;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const el = e.target;
+            el.classList.add('in');
+            el.closest('.flex.flex-col.items-center')
+              ?.querySelector('[data-reveal="meta"]')
+              ?.classList.add('in');
+            io.unobserve(el);
+          }
+        });
+      }, { threshold: 0.2, rootMargin: "0px 0px -10%" });
+      cards.forEach(c => io.observe(c));
+    })();
 
-function setVal(id, newVal) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  const next = String(newVal).padStart(2, '0');
-  if (el.textContent === next) return; // unchanged → skip
-  el.textContent = next;
-  el.classList.add('tick');
-  setTimeout(() => el.classList.remove('tick'), 280);
-}
-
-function updateCountdown() {
-  const now = Date.now();
-  const distance = weddingDate - now;
-
-  if (distance <= 0) {
-    const wrap = document.getElementById("countdown");
-    if (wrap) wrap.innerHTML = "<p class='font-courier text-xl'>It's Wedding Time!</p>";
-    return;
-  }
-
-  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-  setVal("days", days);
-  setVal("hours", hours);
-  setVal("minutes", minutes);
-  setVal("seconds", seconds);
-}
-
-updateCountdown();
-setInterval(updateCountdown, 1000);
-
-
+    // Boot
     loadMedia();
+    setupReveal();
   </script>
 </body>
 </html>
