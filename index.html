@@ -8,158 +8,98 @@
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: '#D4AF37',
+            coal: '#111315'
+          },
+          fontFamily: {
+            tangerine: ['Tangerine', 'cursive'],
+            serifDisplay: ['DM Serif Display', 'serif'],
+            inter: ['Inter', 'ui-sans-serif', 'system-ui']
+          }
+        }
+      }
+    }
+  </script>
+
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Tangerine:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    /* ---------- Fonts & helpers ---------- */
+    html { scroll-behavior: smooth; }
     .font-tangerine { font-family: 'Tangerine', cursive; }
     .font-courier { font-family: 'Courier New', monospace; }
-    .font-georgia { font-family: 'Georgia', serif; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    html { scroll-behavior: smooth; }
+    :root { --eio: cubic-bezier(.22,.61,.36,1); }
 
-    /* ---------- Preloader ---------- */
+    /* ===== Preloader ===== */
     #preloader {
-      position: fixed; inset: 0; background: #fff; z-index: 9999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      transition: opacity .8s ease, visibility .8s ease;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      transition: opacity .6s ease;
     }
-    #preloader.hidden { opacity: 0; visibility: hidden; }
+    #preloader.hidden { opacity: 0; pointer-events: none; }
+
     .loader {
-      border: 4px solid #e5e7eb; border-top: 4px solid #111827; border-radius: 50%;
-      width: 56px; height: 56px; animation: spin 1s linear infinite;
+      border: 5px solid #eee;
+      border-top: 5px solid #D4AF37;
+      border-radius: 50%;
+      width: 60px; height: 60px;
+      animation: spin 1.2s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ---------- Motion tokens ---------- */
-    :root { --eio: cubic-bezier(.22,.61,.36,1); } /* gentle ease-out */
-
-    /* gentle reveals used elsewhere */
-    .reveal    { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--eio), transform .8s var(--eio); }
-    .reveal.in { opacity: 1; transform: translateY(0); }
-    .reveal-soft    { opacity: 0; transition: opacity .9s var(--eio); }
-    .reveal-soft.in { opacity: 1; }
-    .reveal-zoom    { opacity: 0; transform: scale(.985); transition: opacity .9s var(--eio), transform .9s var(--eio); transform-origin: center; }
-    .reveal-zoom.in { opacity: 1; transform: scale(1); }
-    .d1 { transition-delay: .06s; } .d2 { transition-delay: .12s; } .d3 { transition-delay: .18s; }
-
-    /* Hero title intro */
-    @keyframes headingIntro {
-      0%   { opacity: 0; transform: translateY(10px) scale(.985); }
-      100% { opacity: 1; transform: translateY(0)    scale(1); }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-    .heading-intro { animation: headingIntro 900ms var(--eio) both; }
 
-    /* Countdown (no blink) */
-    .timebox{
-      background: rgba(255,255,255,.16);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(255,255,255,.25);
-      border-radius: 14px;
-      padding: .6rem .75rem;
-      text-align: center;
-      box-shadow: 0 6px 20px rgba(0,0,0,.08);
-    }
-    .timebox .value{
-      font-family: 'Courier New', monospace;
-      font-variant-numeric: tabular-nums;
-      font-weight: 700;
-      font-size: clamp(20px, 4.2vw, 34px);
-      line-height: 1.1;
-      transition: transform .25s var(--eio);
-    }
-    .timebox .label{ font-size: .7rem; letter-spacing: .04em; opacity: .9; }
-    .value.tick { transform: translateY(-6%); }
-    #countdown {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
-      max-width: 300px; margin: 1rem auto 0;
-    }
-    .timebox { aspect-ratio: 1 / 1.05; }
-
-    /* Section rhythm */
-    section { isolation: isolate; }
-    .section-pad { padding-top: clamp(2rem, 5vw, 4rem); padding-bottom: clamp(2rem, 5vw, 4rem); }
-
-    /* Buttons */
-    .btn { transition: transform .15s var(--eio), box-shadow .15s var(--eio), background-color .15s var(--eio), color .15s var(--eio); }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(0,0,0,.12); }
-
-    /* ---------- COUPLE: smooth fly-in (no blur/filter) ---------- */
-    .fly-card {
+    /* ===== Reveal Animation ===== */
+    .reveal, .timeline-item {
       opacity: 0;
-      transform: translateX(0); /* set by variant classes below */
-      transition: opacity .9s var(--eio), transform .9s var(--eio);
+      transform: translateY(30px);
+      transition: all .9s var(--eio);
       will-change: transform, opacity;
-      text-align: center;
     }
-    .fly-left   { transform: translateX(-28px); }
-    .fly-right  { transform: translateX( 28px); }
-    .fly-card.in { opacity: 1; transform: translateX(0); }
-    .fly-card:hover { transform: translateX(0) translateY(-3px); }
-
-    .portrait {
-      width: min(25vh, 220px);
-      height: min(25vh, 220px);
-      border-radius: 9999px;
-      object-fit: cover;
-      background: #fff;
-      box-shadow: 0 10px 30px rgba(0,0,0,.08);
-      /* No filters, no blur */
+    .reveal.visible, .timeline-item.visible {
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    .couple-meta {
-      opacity: 0;
-      transform: translateY(6px);
-      transition: opacity .8s var(--eio) .12s, transform .8s var(--eio) .12s;
+    /* ===== Timeline & Circles ===== */
+    .timeline-dot {
+      box-shadow: 0 6px 18px rgba(0,0,0,.15), inset 0 0 0 1px rgba(255,255,255,.5);
     }
-    .couple-meta.in { opacity: 1; transform: translateY(0); }
-
-    /* ---- RSVP Button (new) ---- */
-    .rsvp-btn {
-      display: inline-block;
-      background: linear-gradient(90deg, #fbcfe8 0%, #f5d0fe 100%);
-      color: #374151;
-      font-family: 'Courier New', monospace;
-      font-weight: 700;
-      padding: 0.9rem 1.6rem;
-      border-radius: 9999px;
-      box-shadow: 0 8px 22px rgba(0,0,0,.12);
-      transition: transform .22s var(--eio), box-shadow .22s var(--eio), background .22s var(--eio);
-    }
-    .rsvp-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 14px 28px rgba(0,0,0,.16);
-      background: linear-gradient(90deg, #f9a8d4 0%, #e9d5ff 100%);
-    }
-
-    /* Motion accessibility */
-    @media (prefers-reduced-motion: reduce) {
-      * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
-    }
-
-    /* Mobile tweaks */
-    @media (max-width: 480px) {
-      #countdown { max-width: 260px; gap: 5px; }
-      .timebox { border-radius: 10px; }
-      .timebox .value { font-size: 16px; }
-      .timebox .label { font-size: 0.56rem; }
+    @media (max-width: 768px) {
+      .timeline-line { left: 8px !important; }
+      .timeline-dot { left: 8px !important; transform: translateX(0); }
+      .timeline-item-content { padding-left: 2.5rem; text-align: left !important; }
     }
   </style>
 </head>
-<body class="bg-white text-gray-900">
 
-  <!-- PRELOADER -->
+<body class="bg-white text-gray-900 font-inter">
+
+  <!-- ===== Preloader ===== -->
   <div id="preloader">
-    <div class="loader mb-4"></div>
-    <p class="font-courier text-gray-700">Loading memories...</p>
+    <div class="flex flex-col items-center">
+      <div class="loader mb-4"></div>
+      <p class="font-courier text-gray-700">Loading memories...</p>
+    </div>
   </div>
 
-  <!-- Sticky top nav -->
-  <header class="sticky top-0 z-[60] bg-white/85 backdrop-blur border-b border-gray-200">
+  <!-- ===== Header ===== -->
+  <header class="sticky top-0 z-50 bg-white/85 backdrop-blur border-b border-gray-200">
     <nav class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
       <a href="#home" class="font-tangerine text-3xl">N & S</a>
       <div class="flex gap-4 text-sm font-courier">
@@ -171,310 +111,165 @@
     </nav>
   </header>
 
-  <main class="w-full">
-    <!-- HERO -->
-    <section id="home" class="relative h-[92vh] w-full">
-      <video id="heroVideo" autoplay muted loop playsinline class="absolute inset-0 h-full w-full object-cover"></video>
-      <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/40"></div>
+  <!-- ===== HERO ===== -->
+  <section id="home" class="relative h-[92vh] w-full">
+    <video id="heroVideo" autoplay muted loop playsinline class="absolute inset-0 h-full w-full object-cover"></video>
+    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/40"></div>
 
-      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white px-3 z-10">
-        <h1 class="font-tangerine font-bold text-6xl md:text-7xl drop-shadow heading-intro">Nutnaree & Sacha</h1>
-        <p class="font-courier text-lg md:text-xl mt-2 reveal-soft d1">29 December 2025</p>
-        <p class="font-courier text-lg md:text-xl reveal-soft d2">Rama9, Bangkok</p>
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white px-3 z-10">
+      <h1 class="font-tangerine text-7xl drop-shadow">Nutnaree & Sacha</h1>
+      <p class="font-courier text-lg mt-2">29 December 2025</p>
+      <p class="font-courier text-lg">Ray Venue, Bangkok</p>
+    </div>
+  </section>
 
-        <div id="countdown" class="mt-5 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 w-full max-w-[320px] md:max-w-xl mx-auto reveal-zoom d3">
-          <div class="timebox"><div id="days" class="value">00</div><div class="label">Days</div></div>
-          <div class="timebox"><div id="hours" class="value">00</div><div class="label">Hours</div></div>
-          <div class="timebox"><div id="minutes" class="value">00</div><div class="label">Minutes</div></div>
-          <div class="timebox"><div id="seconds" class="value">00</div><div class="label">Seconds</div></div>
+  <!-- ===== COUPLE ===== -->
+  <section id="couple" class="px-4 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 py-16">
+    <div class="flex flex-col items-center reveal">
+      <img id="brideImg" alt="Bride" class="w-40 h-40 md:w-56 md:h-56 rounded-full shadow-lg object-cover" />
+      <p class="font-tangerine text-2xl mt-2">Nutnaree Luksachob Smith</p>
+    </div>
+    <div class="flex flex-col items-center reveal">
+      <img id="groomImg" alt="Groom" class="w-40 h-40 md:w-56 md:h-56 rounded-full shadow-lg object-cover" />
+      <p class="font-tangerine text-2xl mt-2">Sacha Jay Smith</p>
+    </div>
+  </section>
+
+  <!-- ===== MONOGRAM ===== -->
+  <section class="px-4 text-center py-10 reveal">
+    <img id="logoImg" alt="Logo" class="mx-auto w-[28vh]" />
+    <p class="font-courier text-2xl mt-4">Let's celebrate together on</p>
+    <p class="font-courier text-2xl font-semibold">29 December 2025</p>
+  </section>
+
+  <!-- ===== TIMELINE ===== -->
+  <section id="timeline" class="max-w-5xl mx-auto px-4 py-14 relative">
+    <h2 class="text-center font-serifDisplay text-3xl mb-10 reveal">Wedding Day Schedule</h2>
+    <div class="relative">
+      <div class="timeline-line absolute left-1/2 top-0 -translate-x-1/2 w-[2px] h-full bg-gray-300 md:block hidden"></div>
+
+      <div class="space-y-12">
+        <!-- Event 1 -->
+        <div class="timeline-item relative grid md:grid-cols-2 items-center">
+          <div class="md:text-right pr-8 timeline-item-content">
+            <h3 class="font-semibold">Wedding Ceremony</h3>
+            <p class="text-sm text-gray-600">05:00 - 07:30</p>
+            <p class="text-gray-700">Traditional ceremony with family and close friends.</p>
+          </div>
+          <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">1</div>
+        </div>
+        <!-- Event 2 -->
+        <div class="timeline-item relative grid md:grid-cols-2 items-center">
+          <div class="hidden md:block"></div>
+          <div class="md:text-left pl-8 timeline-item-content">
+            <h3 class="font-semibold">Toast & Dinner</h3>
+            <p class="text-sm text-gray-600">07:30 - 08:45</p>
+            <p class="text-gray-700">Dinner, speeches, and celebration.</p>
+          </div>
+          <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">2</div>
+        </div>
+        <!-- Event 3 -->
+        <div class="timeline-item relative grid md:grid-cols-2 items-center">
+          <div class="md:text-right pr-8 timeline-item-content">
+            <h3 class="font-semibold">Speeches</h3>
+            <p class="text-sm text-gray-600">08:45 - 09:00</p>
+            <p class="text-gray-700">Words from family and friends.</p>
+          </div>
+          <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">3</div>
+        </div>
+        <!-- Event 4 -->
+        <div class="timeline-item relative grid md:grid-cols-2 items-center">
+          <div class="hidden md:block"></div>
+          <div class="md:text-left pl-8 timeline-item-content">
+            <h3 class="font-semibold">Evening Party</h3>
+            <p class="text-sm text-gray-600">09:00 Onwards</p>
+            <p class="text-gray-700">Music, dancing, and unforgettable memories.</p>
+          </div>
+          <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">4</div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- INTRO LINES -->
-    <section class="section-pad text-center">
-      <p class="font-courier text-base reveal">THE HONOUR OF YOUR PRESENCE IS REQUESTED</p>
-      <p class="font-courier text-base reveal d1">AT THE MARRIAGE CELEBRATION OF</p>
-    </section>
+  <!-- ===== COLOR THEME ===== -->
+  <section id="attire" class="px-4 py-14 text-center">
+    <h4 class="font-courier mb-2 reveal">Wear Your Best Attire</h4>
+    <p class="text-sm text-gray-600 mb-6 reveal">Our color theme</p>
+    <div class="flex justify-center gap-8 reveal">
+      <div class="w-24 h-24 rounded-full shadow-lg ring-1 ring-black/5" style="background-color:#F5F5DC;"></div>
+      <div class="w-24 h-24 rounded-full shadow-lg ring-1 ring-black/5" style="background-color:#658C58;"></div>
+    </div>
+  </section>
 
-    <!-- COUPLE (smooth fly-in, no blur/filter) -->
-    <section id="couple" class="px-4 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 section-pad">
-      <!-- Bride -->
-      <div class="flex flex-col items-center">
-        <div class="fly-card fly-left" data-reveal="fly-card">
-          <img id="brideImg" alt="Bride" class="portrait" />
-        </div>
-        <div class="couple-meta mt-3" data-reveal="meta">
-          <p class="font-tangerine text-3xl">Bride</p>
-          <p class="font-georgia text-xl">Nutnaree Luksachob</p>
-        </div>
+  <!-- ===== MAP ===== -->
+  <section id="map" class="px-4 py-14">
+    <h4 class="text-center mb-4 font-courier reveal">Wedding Location</h4>
+    <div class="max-w-5xl mx-auto reveal">
+      <div class="relative rounded-xl overflow-hidden bg-white shadow-xl ring-1 ring-black/5">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3874.137013813808!2d100.48806051008872!3d13.830810086513342!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29b002f6cd8cd%3A0x81ba3ec3330f974f!2sRay%20Venue!5e0!3m2!1sen!2sth!4v1761728641921!5m2!1sen!2sth"
+          class="block w-full [aspect-ratio:16/9]" style="border:0;" allowfullscreen loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
-      <!-- Groom -->
-      <div class="flex flex-col items-center">
-        <div class="fly-card fly-right" data-reveal="fly-card">
-          <img id="groomImg" alt="Groom" class="portrait" />
-        </div>
-        <div class="couple-meta mt-3" data-reveal="meta">
-          <p class="font-tangerine text-3xl">Groom</p>
-          <p class="font-georgia text-xl">Sacha XXXXX</p>
-        </div>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- MONOGRAM / DATE -->
-    <section class="px-4 text-center section-pad">
-      <img id="logoImg" alt="Logo" class="mx-auto w-[30vh] h-auto" />
-      <div class="mt-4">
-        <p class="font-courier text-base reveal">LET'S CELEBRATE TOGETHER ON</p>
-        <p class="font-courier text-base reveal d1">OUR SPECIAL DAY ON</p>
-        <p class="font-courier text-2xl font-semibold reveal d2">29 December 2025</p>
-      </div>
-    </section>
-
-    <!-- CAROUSEL -->
-    <section class="my-6">
-      <div class="relative max-w-6xl mx-auto">
-        <div id="snapCarousel" class="w-full overflow-x-auto no-scrollbar snap-x snap-mandatory flex gap-4 px-4 reveal"></div>
-        <div class="mt-4 flex justify-center gap-3">
-          <button id="prevBtn" class="btn px-4 py-2 rounded-full bg-gray-900 text-white/90 hover:text-white hover:bg-gray-800">Prev</button>
-          <button id="nextBtn" class="btn px-4 py-2 rounded-full bg-gray-900 text-white/90 hover:text-white hover:bg-gray-800">Next</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- GALLERY -->
-    <section id="gallery" class="py-10 bg-[#fafafa]">
-      <h4 class="text-center mb-6 font-courier reveal">More Memories</h4>
-      <div id="galleryGrid" class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-        <!-- images injected -->
-      </div>
-    </section>
-
-    <!-- SPLIT MESSAGE + PHOTO -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 min-h-[70vh] section-pad">
-      <div class="flex items-center justify-center text-center p-6">
-        <div class="max-w-2xl">
-          <p class="font-courier text-2xl md:text-3xl leading-relaxed reveal">
-            “เพื่อให้เราสามารถวางแผนในการดูแลท่าน ซึ่งเป็นแขกคนสำคัญได้อย่างเต็มที่
-            ขอรบกวนทุกท่านทำแบบตอบรับการเข้าร่วมงานให้เราด้วยนะคะ/ครับ”
-          </p>
-          <p class="font-courier text-2xl md:text-3xl mt-6 reveal d2">“HOPE TO SEE YOU AT OUR WEDDING”</p>
-        </div>
-      </div>
-      <div class="relative">
-        <img id="splitImg" alt="Split" class="w-full h-full object-cover" />
-        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-b from-transparent to-white"></div>
-      </div>
-    </section>
-
-    <!-- ===== RSVP (new, before Map) ===== -->
-    <section id="rsvp" class="section-pad text-center">
-      <a href="https://google.com" target="_blank" rel="noopener noreferrer"
-         class="rsvp-btn reveal" aria-label="Open RSVP form in new tab">
-        RSVP NOW
-      </a>
-    </section>
-
-    <!-- MAP -->
-    <section id="map" class="section-pad">
-      <h4 class="text-center mb-4 font-courier reveal">Wedding Location</h4>
-      <div class="max-w-5xl mx-auto px-4 reveal-zoom d1">
-        <div class="relative rounded-xl overflow-hidden bg-white shadow-xl ring-1 ring-black/5">
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3874.137013813808!2d100.48806051008872!3d13.830810086513342!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e29b002f6cd8cd%3A0x81ba3ec3330f974f!2sRay%20Venue!5e0!3m2!1sen!2sth!4v1761728641921!5m2!1sen!2sth"
-            class="block w-full [aspect-ratio:16/9]" style="border:0;" allowfullscreen loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- ========================= Firebase + Logic ========================= -->
+  <!-- ===== JS: Firebase + Scroll + Preloader ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
-    const firebaseConfig = {
+    const app = initializeApp({
       apiKey: "AIzaSyDxlQWFYRcbGZ133HPEMXYy8tR_KMUiJw0",
       authDomain: "lottogame-16083.firebaseapp.com",
       projectId: "lottogame-16083",
-      storageBucket: "lottogame-16083.firebasestorage.app",
-      messagingSenderId: "278778623701",
-      appId: "1:278778623701:web:c7828b036c617a13fa145c"
-    };
-
-    const app = initializeApp(firebaseConfig);
+      storageBucket: "lottogame-16083.firebasestorage.app"
+    });
     const storage = getStorage(app);
 
     const files = {
       video: "BeachVDO3.mp4",
-      heroImages: ["BeachPhoto24.jpg", "BeachPhoto2.jpg", "BeachPhoto8.jpg", "BeachPhoto15.jpg"],
-      gallery: ["Studio18.jpg", "Studio30.jpg", "Studio32.jpg", "Studio19.jpg", "Studio11.jpg", "Studio35.jpg"],
       bride: "Studio22.jpg",
       groom: "Studio23.jpg",
-      split: "Studio33.jpg",
-      logo: "logo.png"
+      logo: "Logo.png"
     };
 
-    // Helpers
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
     async function setSrc(el, file) {
-      if (el.tagName === "VIDEO") return setVideo(el, file);
       try {
         const url = await getDownloadURL(ref(storage, file));
         el.src = url;
-        el.loading = "lazy";
-        el.decoding = "async";
-      } catch (e) { console.error("Image load failed:", file, e); }
-    }
-    async function setVideo(videoEl, file) {
-      try {
-        const url = await getDownloadURL(ref(storage, file));
-        videoEl.src = url; videoEl.muted = true; videoEl.playsInline = true; videoEl.autoplay = true;
-        videoEl.addEventListener("canplay", async () => {
-          try { await videoEl.play(); } catch (err) { console.warn("Autoplay blocked:", err); }
-        }, { once: true });
-      } catch (e) { console.error("Video load failed:", file, e); }
-    }
-
-    async function buildCarousel() {
-      const scroller = document.getElementById("snapCarousel");
-      scroller.innerHTML = "";
-      for (const name of files.heroImages) {
-        const url = await getDownloadURL(ref(storage, name));
-        const img = document.createElement("img");
-        img.src = url; img.alt = name;
-        img.className = "snap-center shrink-0 w-full md:w-[80%] lg:w-[70%] h-[45vh] md:h-[65vh] object-cover rounded-xl shadow";
-        scroller.appendChild(img);
-      }
-      const step = () => scroller.clientWidth * 0.8;
-      document.getElementById('prevBtn')?.addEventListener('click', () => scroller.scrollBy({ left: -step(), behavior: 'smooth' }));
-      document.getElementById('nextBtn')?.addEventListener('click', () => scroller.scrollBy({ left: step(), behavior: 'smooth' }));
-
-      // gentle snap assist
-      let t;
-      scroller.addEventListener('scroll', () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-          const children = Array.from(scroller.children);
-          const x = scroller.scrollLeft + scroller.clientWidth / 2;
-          let closest = null; let closestDist = Infinity;
-          children.forEach(ch => {
-            const rect = ch.getBoundingClientRect();
-            const center = rect.left + rect.width / 2 + scroller.scrollLeft;
-            const d = Math.abs(center - x);
-            if (d < closestDist) { closest = ch; closestDist = d; }
-          });
-          closest?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }, 120);
-      }, { passive: true });
-    }
-
-    async function buildGallery() {
-      const grid = document.getElementById("galleryGrid");
-      grid.innerHTML = "";
-      for (const [i, name] of files.gallery.entries()) {
-        const url = await getDownloadURL(ref(storage, name));
-        const card = document.createElement("div");
-        card.className = "flex items-center justify-center bg-white rounded-lg overflow-hidden shadow-md aspect-[3/4] reveal-zoom";
-        card.style.transitionDelay = (0.05 * (i % 6)) + "s";
-
-        const img = document.createElement("img");
-        img.src = url; img.alt = name;
-        img.loading = "lazy"; img.decoding = "async";
-        img.className = "max-h-full max-w-full object-contain";
-        img.addEventListener("load", () => card.classList.add("in"), { once: true });
-
-        card.appendChild(img);
-        grid.appendChild(card);
-      }
+      } catch (e) { console.error("Load fail", e); }
     }
 
     async function loadMedia() {
-      const heroVideo = document.getElementById("heroVideo");
       await Promise.all([
-        setSrc(heroVideo, files.video),
+        setSrc(document.getElementById("heroVideo"), files.video),
         setSrc(document.getElementById("brideImg"), files.bride),
         setSrc(document.getElementById("groomImg"), files.groom),
-        setSrc(document.getElementById("splitImg"), files.split),
-        setSrc(document.getElementById("logoImg"), files.logo),
-        buildCarousel(),
-        buildGallery()
+        setSrc(document.getElementById("logoImg"), files.logo)
       ]);
-
-      // Hide preloader when hero video can play or after a short fallback
-      const pre = document.getElementById("preloader");
-      if (heroVideo.readyState >= 3) {
-        pre.classList.add("hidden");
-      } else {
-        const done = () => pre.classList.add("hidden");
-        heroVideo.addEventListener("canplaythrough", done, { once: true });
-        setTimeout(done, 2000);
-      }
+      // Hide preloader once everything is loaded
+      document.getElementById("preloader").classList.add("hidden");
     }
 
-    // Countdown
-    const weddingDate = new Date("2025-12-29T17:00:00+07:00").getTime();
-    function setVal(id, newVal) {
-      const el = document.getElementById(id); if (!el) return;
-      const next = String(newVal).padStart(2, '0');
-      if (el.textContent === next) return;
-      el.textContent = next; el.classList.add('tick');
-      setTimeout(() => el.classList.remove('tick'), 240);
-    }
-    function updateCountdown() {
-      const now = Date.now();
-      const distance = weddingDate - now;
-      if (distance <= 0) {
-        const wrap = document.getElementById("countdown");
-        if (wrap) wrap.innerHTML = "<p class='font-courier text-xl'>It's Wedding Time!</p>";
-        return;
-      }
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-      setVal("days", days); setVal("hours", hours); setVal("minutes", minutes); setVal("seconds", seconds);
-    }
-    updateCountdown(); setInterval(updateCountdown, 1000);
-
-    /* ---------- Generic gentle reveals ---------- */
-    function setupReveal() {
-      const els = document.querySelectorAll('.reveal, .reveal-soft, .reveal-zoom');
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('in');
-            io.unobserve(e.target);
+    // ===== Scroll Animation: works both directions =====
+    function setupScrollAnimations() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          } else {
+            entry.target.classList.remove('visible'); // reset on scroll out
           }
         });
-      }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-      els.forEach(el => io.observe(el));
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
     }
 
-    /* ---------- Couple fly-in ---------- */
-    (function setupCoupleFlyIn(){
-      const cards = document.querySelectorAll('[data-reveal="fly-card"]');
-      if (!cards.length) return;
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            const el = e.target;
-            el.classList.add('in');
-            el.closest('.flex.flex-col.items-center')
-              ?.querySelector('[data-reveal="meta"]')
-              ?.classList.add('in');
-            io.unobserve(el);
-          }
-        });
-      }, { threshold: 0.2, rootMargin: "0px 0px -10%" });
-      cards.forEach(c => io.observe(c));
-    })();
-
-    // Boot
-    loadMedia();
-    setupReveal();
+    window.addEventListener("load", () => {
+      setupScrollAnimations();
+      loadMedia();
+    });
   </script>
 </body>
 </html>
