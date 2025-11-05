@@ -38,19 +38,19 @@
     .font-courier { font-family: 'Courier New', monospace; }
     :root { --eio: cubic-bezier(.22,.61,.36,1); }
 
+    /* Optional: hide scrollbars utility (keeps scrolling functional) */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
     /* ===== Preloader ===== */
     #preloader {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      position: fixed; inset: 0;
       background: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       z-index: 10000;
-      transition: opacity .6s ease;
+      transition: opacity .6s ease, visibility .6s ease;
     }
-    #preloader.hidden { opacity: 0; pointer-events: none; }
+    #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
 
     .loader {
       border: 5px solid #eee;
@@ -59,16 +59,13 @@
       width: 60px; height: 60px;
       animation: spin 1.2s linear infinite;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== Reveal Animation ===== */
+    /* ===== Reveal Animation (used everywhere) ===== */
     .reveal, .timeline-item {
       opacity: 0;
       transform: translateY(30px);
-      transition: all .9s var(--eio);
+      transition: transform .9s var(--eio), opacity .9s var(--eio);
       will-change: transform, opacity;
     }
     .reveal.visible, .timeline-item.visible {
@@ -106,6 +103,7 @@
         <a href="#home" class="hover:opacity-70">Home</a>
         <a href="#couple" class="hover:opacity-70">Couple</a>
         <a href="#gallery" class="hover:opacity-70">Gallery</a>
+         <a href="#timeline" class="hover:opacity-70">Schedule</a>
         <a href="#map" class="hover:opacity-70">Map</a>
       </div>
     </nav>
@@ -117,21 +115,9 @@
     <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/40"></div>
 
     <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white px-3 z-10">
-      <h1 class="font-tangerine text-7xl drop-shadow">Nutnaree & Sacha</h1>
+      <h1 class="font-tangerine text-4xl drop-shadow">Nutnaree & Sacha</h1>
       <p class="font-courier text-lg mt-2">29 December 2025</p>
       <p class="font-courier text-lg">Ray Venue, Bangkok</p>
-    </div>
-  </section>
-
-  <!-- ===== COUPLE ===== -->
-  <section id="couple" class="px-4 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 py-16">
-    <div class="flex flex-col items-center reveal">
-      <img id="brideImg" alt="Bride" class="w-40 h-40 md:w-56 md:h-56 rounded-full shadow-lg object-cover" />
-      <p class="font-tangerine text-2xl mt-2">Nutnaree Luksachob Smith</p>
-    </div>
-    <div class="flex flex-col items-center reveal">
-      <img id="groomImg" alt="Groom" class="w-40 h-40 md:w-56 md:h-56 rounded-full shadow-lg object-cover" />
-      <p class="font-tangerine text-2xl mt-2">Sacha Jay Smith</p>
     </div>
   </section>
 
@@ -142,9 +128,28 @@
     <p class="font-courier text-2xl font-semibold">29 December 2025</p>
   </section>
 
+  <!-- ===== COUPLE ===== -->
+  <section id="couple" class="px-4 max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 py-16">
+    <div class="flex flex-col items-center reveal">
+      <img id="brideImg" alt="Bride" class="w-40 h-40 md:w-56 md:h-56 rounded-full shadow-lg object-cover" />
+      <p class="font-tangerine text-2xl mt-2">Nutnaree Ruksachob Smith</p>
+    </div>
+    <div class="flex flex-col items-center reveal">
+      <img id="groomImg" alt="Groom" class="w-40 h-40 md:w-56 md:h-56 rounded-full shadow-lg object-cover" />
+      <p class="font-tangerine text-2xl mt-2">Sacha Jay Smith</p>
+    </div>
+  </section>
+
+  <!-- ===== CAROUSEL (1 image per view, fades, auto-advance) ===== -->
+  <section class="my-6">
+    <div class="relative max-w-6xl mx-auto">
+     <div id="snapCarousel" class="relative w-full h-[60vh] md:h-[80vh] overflow-hidden rounded-xl shadow bg-black/5 touch-pan-y"></div>
+    <div id="carouselDots" class="mt-4 flex justify-center gap-2"></div>
+  </section>
+
   <!-- ===== TIMELINE ===== -->
   <section id="timeline" class="max-w-5xl mx-auto px-4 py-14 relative">
-    <h2 class="text-center font-serifDisplay text-3xl mb-10 reveal">Wedding Day Schedule</h2>
+    <h2 class="text-center font-serifDisplay text-3xl mb-10 reveal">Our Schedule</h2>
     <div class="relative">
       <div class="timeline-line absolute left-1/2 top-0 -translate-x-1/2 w-[2px] h-full bg-gray-300 md:block hidden"></div>
 
@@ -152,9 +157,9 @@
         <!-- Event 1 -->
         <div class="timeline-item relative grid md:grid-cols-2 items-center">
           <div class="md:text-right pr-8 timeline-item-content">
-            <h3 class="font-semibold">Wedding Ceremony</h3>
-            <p class="text-sm text-gray-600">05:00 - 07:30</p>
-            <p class="text-gray-700">Traditional ceremony with family and close friends.</p>
+            <h3 class="font-semibold">We Do</h3>
+            <p class="text-sm text-gray-600">05:00PM - 05:30PM</p>
+            <p class="text-gray-700">The moment our hearts become one as we say “I do” and begin our forever.</p>
           </div>
           <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">1</div>
         </div>
@@ -162,18 +167,18 @@
         <div class="timeline-item relative grid md:grid-cols-2 items-center">
           <div class="hidden md:block"></div>
           <div class="md:text-left pl-8 timeline-item-content">
-            <h3 class="font-semibold">Toast & Dinner</h3>
-            <p class="text-sm text-gray-600">07:30 - 08:45</p>
-            <p class="text-gray-700">Dinner, speeches, and celebration.</p>
+            <h3 class="font-semibold">We Snap</h3>
+            <p class="text-sm text-gray-600">05:30PM - 07:00PM</p>
+            <p class="text-gray-700">Join us in capturing our happiest moments.</p>
           </div>
           <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">2</div>
         </div>
         <!-- Event 3 -->
         <div class="timeline-item relative grid md:grid-cols-2 items-center">
           <div class="md:text-right pr-8 timeline-item-content">
-            <h3 class="font-semibold">Speeches</h3>
-            <p class="text-sm text-gray-600">08:45 - 09:00</p>
-            <p class="text-gray-700">Words from family and friends.</p>
+            <h3 class="font-semibold">We Dine</h3>
+            <p class="text-sm text-gray-600">07:00PM - 08:30PM</p>
+            <p class="text-gray-700">A joyful meal shared with the people we love most as we celebrate our new beginning.</p>
           </div>
           <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">3</div>
         </div>
@@ -181,20 +186,37 @@
         <div class="timeline-item relative grid md:grid-cols-2 items-center">
           <div class="hidden md:block"></div>
           <div class="md:text-left pl-8 timeline-item-content">
-            <h3 class="font-semibold">Evening Party</h3>
-            <p class="text-sm text-gray-600">09:00 Onwards</p>
-            <p class="text-gray-700">Music, dancing, and unforgettable memories.</p>
+            <h3 class="font-semibold">We Share</h3>
+            <p class="text-sm text-gray-600">08:30PM - 09:00PM</p>
+            <p class="text-gray-700">Stories, laughter, and memories that remind us how love connects us all.</p>
           </div>
           <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">4</div>
+        </div>
+        <!-- Event 5 (duplicate title kept to match your latest content) -->
+        <div class="timeline-item relative grid md:grid-cols-2 items-center">
+          <div class="md:text-right pr-8 timeline-item-content">
+            <h3 class="font-semibold">We Dance</h3>
+            <p class="text-sm text-gray-600">09:00PM - 12:00AM</p>
+            <p class="text-gray-700">The night comes alive with music, joy, and celebration of our happily ever after.</p>
+          </div>
+          <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">5</div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- ===== GALLERY ===== -->
+  <section id="gallery" class="py-10 bg-[#fafafa]">
+    <h4 class="text-center mb-6 font-courier reveal font-semibold">More Memories</h4>
+    <div id="galleryGrid" class="max-w-6xl mx-auto px-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+      <!-- images injected -->
+    </div>
+  </section>
+
   <!-- ===== COLOR THEME ===== -->
   <section id="attire" class="px-4 py-14 text-center">
-    <h4 class="font-courier mb-2 reveal">Wear Your Best Attire</h4>
-    <p class="text-sm text-gray-600 mb-6 reveal">Our color theme</p>
+    <h4 class="font-courier mb-2 reveal font-semibold">Wear Your Best Attire</h4>
+    <p class="font-courier text-sm text-gray-600 mb-6 reveal font-semibold">Our color theme</p>
     <div class="flex justify-center gap-8 reveal">
       <div class="w-24 h-24 rounded-full shadow-lg ring-1 ring-black/5" style="background-color:#F5F5DC;"></div>
       <div class="w-24 h-24 rounded-full shadow-lg ring-1 ring-black/5" style="background-color:#658C58;"></div>
@@ -203,7 +225,7 @@
 
   <!-- ===== MAP ===== -->
   <section id="map" class="px-4 py-14">
-    <h4 class="text-center mb-4 font-courier reveal">Wedding Location</h4>
+    <h4 class="text-center mb-4 font-courier reveal font-semibold">Wedding Location</h4>
     <div class="max-w-5xl mx-auto reveal">
       <div class="relative rounded-xl overflow-hidden bg-white shadow-xl ring-1 ring-black/5">
         <iframe
@@ -214,11 +236,12 @@
     </div>
   </section>
 
-  <!-- ===== JS: Firebase + Scroll + Preloader ===== -->
+  <!-- ===== JS: Firebase + Carousel/Gallery + Scroll + Preloader ===== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getStorage, ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
 
+    /* ---------- Firebase ---------- */
     const app = initializeApp({
       apiKey: "AIzaSyDxlQWFYRcbGZ133HPEMXYy8tR_KMUiJw0",
       authDomain: "lottogame-16083.firebaseapp.com",
@@ -229,43 +252,178 @@
 
     const files = {
       video: "BeachVDO3.mp4",
+      heroImages: ["BeachPhoto24.jpg", "BeachPhoto2.jpg", "BeachPhoto8.jpg", "BeachPhoto15.jpg","BeachPhoto28.jpg"],
+      gallery: ["Studio18.jpg", "Studio30.jpg", "Studio32.jpg", "Studio19.jpg", "Studio11.jpg", "Studio35.jpg"],
       bride: "Studio22.jpg",
       groom: "Studio23.jpg",
       logo: "Logo.png"
     };
 
+    /* ---------- Scroll Animations (re-trigger both directions) ---------- */
+    let revealObserver;
+    function setupScrollAnimations() {
+      revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('visible');
+          else entry.target.classList.remove('visible'); // reset when out of view
+        });
+      }, { threshold: 0.15, rootMargin: "0px 0px -10% 0px" });
+
+      document.querySelectorAll('.reveal, .timeline-item').forEach(el => revealObserver.observe(el));
+    }
+    function registerReveal(el) {
+      if (!el) return;
+      el.classList.add('reveal');
+      revealObserver && revealObserver.observe(el);
+    }
+
+    /* ---------- Helpers ---------- */
     async function setSrc(el, file) {
       try {
         const url = await getDownloadURL(ref(storage, file));
         el.src = url;
-      } catch (e) { console.error("Load fail", e); }
+      } catch (e) { console.error("Load fail", file, e); }
     }
 
+    async function buildCarousel() {
+  const container = document.getElementById("snapCarousel");
+  const dotsWrap  = document.getElementById("carouselDots");
+  container.innerHTML = "";
+  dotsWrap.innerHTML  = "";
+
+  const slides = [];
+  for (const name of files.heroImages) {
+    const url = await getDownloadURL(ref(storage, name));
+    const img = document.createElement("img");
+    img.src = url;
+    img.alt = name;
+    img.loading = "lazy";
+    img.decoding = "async";
+    // Centered card that we'll position with transforms for overlap
+    img.className =
+      "reveal absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 " +
+      "w-[72%] md:w-[56%] h-[72%] md:h-[82%] object-cover rounded-xl shadow " +
+      "transition-transform duration-500 ease-out will-change-transform";
+    container.appendChild(img);
+    slides.push(img);
+    registerReveal(img);
+
+    // dot
+    const dot = document.createElement("span");
+    dot.className = "h-2 w-2 rounded-full bg-gray-300";
+    dotsWrap.appendChild(dot);
+  }
+  if (!slides.length) return;
+
+  let current = 0;
+  const GAP = 140; // px between overlapped cards
+
+const circularOffset = (idx) => {
+  let off = idx - current;
+  const N = slides.length;
+  if (off >  N / 2) off -= N;   // wrap right side to the left
+  if (off < -N / 2) off += N;   // wrap left side to the right
+  return off;
+};
+
+
+
+  function render() {
+slides.forEach((el, i) => {
+  const offset = circularOffset(i);
+  const scale = Math.max(0.8, 1 - Math.abs(offset) * 0.08);
+  const z = 100 - Math.abs(offset);
+  el.style.zIndex = String(z);
+  el.style.opacity = Math.abs(offset) > 3 ? "0" : "1";
+  el.style.transform =
+    `translate(-50%, -50%) translateX(${offset * GAP}px) scale(${scale})`;
+});
+
+
+    // dots
+    dotsWrap.querySelectorAll("span").forEach((d, i) => {
+      d.className = `h-2 w-2 rounded-full ${i === current ? 'bg-blue-500' : 'bg-gray-300'}`;
+    });
+  }
+  function go(n) {
+    current = (n + slides.length) % slides.length;
+    render();
+  }
+
+  // Swipe (pointer) controls
+  let startX = null, dragging = false;
+  container.addEventListener("pointerdown", (e) => {
+    startX = e.clientX;
+    dragging = true;
+    container.setPointerCapture(e.pointerId);
+    stopAuto();
+  });
+  container.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    slides.forEach((el, i) => {
+     const off = circularOffset(i);
+const scale = Math.max(0.8, 1 - Math.abs(off - dx / GAP) * 0.08);
+el.style.transform =
+  `translate(-50%, -50%) translateX(${off * GAP + dx}px) scale(${scale})`;
+
+    });
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    dragging = false;
+    if (dx < -60) go(current + 1);
+    else if (dx > 60) go(current - 1);
+    else render();
+    startAuto();
+  }
+  container.addEventListener("pointerup", endDrag);
+  container.addEventListener("pointercancel", endDrag);
+
+  // Auto-advance (still works; remove if you don't want it)
+  let timer = null;
+  const startAuto = () => { stopAuto(); timer = setInterval(() => go(current + 1), 5000); };
+  const stopAuto  = () => { if (timer) { clearInterval(timer); timer = null; } };
+  startAuto();
+
+  render();
+}
+
+
+    /* ---------- Gallery ---------- */
+    async function buildGallery() {
+      const grid = document.getElementById("galleryGrid");
+      grid.innerHTML = "";
+      for (const name of files.gallery) {
+        const url = await getDownloadURL(ref(storage, name));
+        const card = document.createElement("div");
+        card.className = "reveal flex items-center justify-center bg-white rounded-lg overflow-hidden shadow-md aspect-[3/4]";
+        const img = document.createElement("img");
+        img.src = url; img.alt = name;
+        img.loading = "lazy"; img.decoding = "async";
+        img.className = "max-h-full max-w-full object-contain";
+        card.appendChild(img);
+        grid.appendChild(card);
+        registerReveal(card);
+      }
+    }
+
+    /* ---------- Load media & hide preloader ---------- */
     async function loadMedia() {
       await Promise.all([
         setSrc(document.getElementById("heroVideo"), files.video),
         setSrc(document.getElementById("brideImg"), files.bride),
         setSrc(document.getElementById("groomImg"), files.groom),
-        setSrc(document.getElementById("logoImg"), files.logo)
+        setSrc(document.getElementById("logoImg"), files.logo),
+        buildCarousel(),
+        buildGallery()
       ]);
-      // Hide preloader once everything is loaded
+      // Hide preloader once initial media is ready
       document.getElementById("preloader").classList.add("hidden");
     }
 
-    // ===== Scroll Animation: works both directions =====
-    function setupScrollAnimations() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          } else {
-            entry.target.classList.remove('visible'); // reset on scroll out
-          }
-        });
-      }, { threshold: 0.15 });
-      document.querySelectorAll('.reveal, .timeline-item').forEach(el => observer.observe(el));
-    }
-
+    /* ---------- Boot ---------- */
     window.addEventListener("load", () => {
       setupScrollAnimations();
       loadMedia();
