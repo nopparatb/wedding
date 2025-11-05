@@ -77,6 +77,114 @@
     .timeline-dot {
       box-shadow: 0 6px 18px rgba(0,0,0,.15), inset 0 0 0 1px rgba(255,255,255,.5);
     }
+
+/* ===== Countdown ===== */
+#countdown {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 360px;
+  margin: 1rem auto 0;
+}
+
+.timebox {
+  position: relative;
+  aspect-ratio: 1 / 1; /* Always square */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  color: #fff;
+  overflow: hidden; /* Prevent number overflow */
+}
+
+.timebox .value {
+  font-family: 'Courier New', monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: clamp(18px, 4vw, 28px);
+  line-height: 1;
+  transition: transform 0.25s var(--eio);
+  white-space: nowrap;
+}
+
+.timebox .label {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  opacity: 0.9;
+  margin-top: 0.25rem;
+}
+
+.value.tick {
+  transform: translateY(-6%);
+}
+
+@media (max-width: 768px) {
+  #countdown {
+    max-width: 320px;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  #countdown {
+    max-width: 280px;
+    gap: 6px;
+  }
+  .timebox {
+    border-radius: 10px;
+  }
+  .timebox .value {
+    font-size: clamp(14px, 5vw, 20px);
+  }
+  .timebox .label {
+    font-size: 0.6rem;
+  }
+}
+
+
+/* ===== Timeline mobile leading line ===== */
+@media (max-width: 768px) {
+  #timeline {
+    padding-left: 1.5rem; /* more space on the left side */
+  }
+
+  #timeline .space-y-12 {
+    position: relative;
+    margin-left: 1.2rem;
+  }
+
+  #timeline::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 24px; /* adjust spacing of the line */
+    width: 2px;
+    height: 100%;
+    background-color: #d1d5db; /* light gray line */
+  }
+
+  #timeline .timeline-item {
+    position: relative;
+    padding-left: 2.5rem; /* ensure text doesn’t overlap line */
+  }
+
+  #timeline .timeline-dot {
+    position: absolute;
+    left: 20px;
+    transform: translateX(-50%);
+    z-index: 2;
+  }
+}
+
+
+
     @media (max-width: 768px) {
       .timeline-line { left: 8px !important; }
       .timeline-dot { left: 8px !important; transform: translateX(0); }
@@ -98,7 +206,7 @@
   <!-- ===== Header ===== -->
   <header class="sticky top-0 z-50 bg-white/85 backdrop-blur border-b border-gray-200">
     <nav class="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
-      <a href="#home" class="font-tangerine text-3xl">N & S</a>
+      <a href="#home" class="font-tangerine text-2xl">N&S</a>
       <div class="flex gap-4 text-sm font-courier">
         <a href="#home" class="hover:opacity-70">Home</a>
         <a href="#couple" class="hover:opacity-70">Couple</a>
@@ -115,9 +223,17 @@
     <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/25 to-black/40"></div>
 
     <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-white px-3 z-10">
-      <h1 class="font-tangerine text-4xl drop-shadow">Nutnaree & Sacha</h1>
+      <h1 class="font-tangerine text-3xl drop-shadow">Nutnaree & Sacha</h1>
       <p class="font-courier text-lg mt-2">29 December 2025</p>
       <p class="font-courier text-lg">Ray Venue, Bangkok</p>
+      <!-- Countdown -->
+<div id="countdown">
+  <div class="timebox"><div id="days" class="value">00</div><div class="label">Days</div></div>
+  <div class="timebox"><div id="hours" class="value">00</div><div class="label">Hours</div></div>
+  <div class="timebox"><div id="minutes" class="value">00</div><div class="label">Minutes</div></div>
+  <div class="timebox"><div id="seconds" class="value">00</div><div class="label">Seconds</div></div>
+</div>
+
     </div>
   </section>
 
@@ -168,8 +284,8 @@
           <div class="hidden md:block"></div>
           <div class="md:text-left pl-8 timeline-item-content">
             <h3 class="font-semibold">We Snap</h3>
-            <p class="text-sm text-gray-600">05:30PM - 07:00PM</p>
-            <p class="text-gray-700">Join us in capturing our happiest moments.</p>
+            <p class="text-sm text-gray-600">05:30PM - 06:30PM</p>
+            <p class="text-gray-700">Because moments fade, but memories stay. Let's create memories together</p>
           </div>
           <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">2</div>
         </div>
@@ -177,7 +293,7 @@
         <div class="timeline-item relative grid md:grid-cols-2 items-center">
           <div class="md:text-right pr-8 timeline-item-content">
             <h3 class="font-semibold">We Dine</h3>
-            <p class="text-sm text-gray-600">07:00PM - 08:30PM</p>
+            <p class="text-sm text-gray-600">06:30PM - 08:30PM</p>
             <p class="text-gray-700">A joyful meal shared with the people we love most as we celebrate our new beginning.</p>
           </div>
           <div class="absolute left-1/2 -translate-x-1/2 bg-gold text-white w-8 h-8 rounded-full flex items-center justify-center text-sm timeline-dot">3</div>
@@ -254,8 +370,8 @@
       video: "BeachVDO3.mp4",
       heroImages: ["BeachPhoto24.jpg", "BeachPhoto2.jpg", "BeachPhoto8.jpg", "BeachPhoto15.jpg","BeachPhoto28.jpg"],
       gallery: ["Studio18.jpg", "Studio30.jpg", "Studio32.jpg", "Studio19.jpg", "Studio11.jpg", "Studio35.jpg"],
-      bride: "Studio22.jpg",
-      groom: "Studio23.jpg",
+      bride: "bride.png",
+      groom: "groom.png",
       logo: "Logo.png"
     };
 
@@ -428,6 +544,46 @@ el.style.transform =
       setupScrollAnimations();
       loadMedia();
     });
+
+    /* ===== Countdown (ends 29 Dec 2025, 05:00 PM Bangkok, UTC+07) ===== */
+const weddingDate = new Date("2025-12-29T17:00:00+07:00").getTime();
+
+function setVal(id, newVal) {
+  const el = document.getElementById(id); if (!el) return;
+  const next = String(newVal).padStart(2, '0');
+  if (el.textContent === next) return;
+  el.textContent = next;
+  el.classList.add('tick');
+  setTimeout(() => el.classList.remove('tick'), 240);
+}
+
+function updateCountdown() {
+  const wrap = document.getElementById("countdown");
+  if (!wrap) return;
+
+  const now = Date.now();
+  const distance = weddingDate - now;
+
+  if (distance <= 0) {
+    wrap.innerHTML = "<p class='font-courier text-xl text-white'>It's Wedding Time!</p>";
+    clearInterval(countdownTimer);
+    return;
+  }
+
+  const days    = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours   = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+  setVal("days", days);
+  setVal("hours", hours);
+  setVal("minutes", minutes);
+  setVal("seconds", seconds);
+}
+
+updateCountdown();
+const countdownTimer = setInterval(updateCountdown, 1000);
+
   </script>
 </body>
 </html>
